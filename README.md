@@ -49,5 +49,5 @@ from github.
 
 ``` r
 library(remotes)
-install_github('maskedforreview/gtdnews')
+install_github('kasperwelbers/gtdnews')
 ```

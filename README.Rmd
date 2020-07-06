@@ -46,7 +46,7 @@ The easiest way to install this package (without cloning the repository) is to u
 
 ```{r, eval=F}
 library(remotes)
-install_github('maskedforreview/gtdnews')
+install_github('kasperwelbers/gtdnews')
 ```
 
 

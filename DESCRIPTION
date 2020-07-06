@@ -2,8 +2,8 @@ Package: gtdnews
 Type: Package
 Title: Online appendix for @@ paper
 Version: 0.1.0
-Author: masked
-Maintainer: masked <masked@masked.mask>
+Author: Kasper Welbers
+Maintainer: Kasper Welbers <k.welbers@vu.nl>
 Description: This package accompanies the online appendix for the @@ paper.
 Imports:
     methods,

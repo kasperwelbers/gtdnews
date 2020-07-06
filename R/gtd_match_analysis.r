@@ -3,7 +3,7 @@
 #' Create a data.frame in which each row is a unique event, with variables indicating whether
 #' the event matches at least one news article (has_news) and the number of news articles (N_news)
 #'
-#' @param g               The graph data, as returned by the xxx function (reviewers: function in masked R package)
+#' @param g               The graph data, as returned by the \code{\link[RNewsflow]{compare_documents}}
 #' @param weight_thres    The threshold for the similarity score
 #'
 #' @return

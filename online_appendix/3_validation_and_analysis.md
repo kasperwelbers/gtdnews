@@ -11,10 +11,9 @@ github page.
 library(gtdnews)
 library(data.table)
 
-file_url = 'https://github.com/maskedforreview/gtdnews/raw/master/GTD_matching/sim_data.rds'
+file_url = 'https://github.com/kasperwelbers/gtdnews/raw/master/GTD_matching/sim_data.rds'
 download.file(file_url, 'sim_data.rds')
 g = readRDS('sim_data.rds')
-#g = readRDS('~/projects/gtdnews/GTD_matching/sim_data.rds')
 ```
 
 The object `g` is a list with 3 data.frames (in data.table format), that
@@ -92,8 +91,8 @@ est_pr = estimate_validity(g, weight_range = c(1,20), steps=200,
 est\_pr contains the estimated precision and recall (and F1) scores. We
 will use this below to compare with the gold standard validation.
 
-A more generalized version of this function has been added to the
-\[MASKED\] R package.
+Reviewer note: A more generalized version of this function will be added
+to the RNewsflow R package.
 
 ## Gold standard validation
 
