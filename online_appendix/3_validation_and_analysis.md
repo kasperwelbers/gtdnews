@@ -259,7 +259,7 @@ m4 = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + value_dist +
            data=e2, family = binomial)
 
 anova(m1,m2,m3,m4)
-tab_model(m1,m2,m3,m4)
+tab_model(m1,m2,m3,m4, show.se = T)
 ```
 
 ### table 2: all countries
@@ -280,7 +280,7 @@ m3 = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + (1 | country
            data=e3, family = binomial)
 
 anova(m1,m2,m3)
-tab_model(m2,m3)
+tab_model(m2,m3, show.se=T)
 ```
 
 ### figure 8
