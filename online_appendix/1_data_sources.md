@@ -1,6 +1,10 @@
 First part of online appendix: Data sources
 ================
 
+  - [Data](#data)
+      - [GTD](#gtd)
+      - [The Guardian](#the-guardian)
+
 # Data
 
 Both the GTD data and the news articles from the Guardian are available
@@ -38,7 +42,7 @@ The data is provided as an .xlsx file, which can be read into R with the
 
 ``` r
 library(openxlsx)
-gtd = read.xlsx(xlsxFile = '[path to GTD file]')
+gtd = read.xlsx(xlsxFile = '~/Downloads/globalterrorismdb_0919dist.xlsx')
 gtd = gtd[gtd$iyear >= 2006 & gtd$iyear <= 2018,]
 ```
 

@@ -16,13 +16,9 @@ options(digits=3)
 knitr::opts_chunk$set(eval=F)
 ```
 
-# Note to reviewers
-
-This analysis relies on the `RNewflow` package that we previously developed, and updated for this study. Although `RNewsflow` is hosten on CRAN, the current study requires the development version that is available on GitHub.
 
 ```{r}
-library(remotes)
-remotes::install_github('kasperwelbers/RNewsflow')
+install.packages('RNewsflow')
 ```
 
 # Matching the GTD events to the news articles
@@ -50,7 +46,7 @@ We use several additional preprocessing steps to prepare the DTMs for the simila
 
 ## Cluster terms with similar spelling
 
-In a DTM, terms that have very similar spelling are nonetheless regarded as completely separate columns. To some extent, this is accounted for by preprocessing tech"niques such as stemming (applied in our case) or lemmatization. For instance, with stemming, "attacking", "attack" and "attacks" are all transformed to "attack". However, some words--in particular namems--can have different spellings, such as "Gaddafi" or "Gadhafi". Moreover, some datasets have spelling mistakes. In the GTD data, there are quite many spelling mistakes and slightly different spellings for words, often related to differences between countries (though the prescribed language is English). 
+In a DTM, terms that have very similar spelling are nonetheless regarded as completely separate columns. To some extent, this is accounted for by preprocessing techniques such as stemming (applied in our case) or lemmatization. For instance, with stemming, "attacking", "attack" and "attacks" are all transformed to "attack". However, some words--in particular namems--can have different spellings, such as "Gaddafi" or "Gadhafi". Moreover, some datasets have spelling mistakes. In the GTD data, there are quite many spelling mistakes and slightly different spellings for words, often related to differences between countries (though the prescribed language is English). 
 
 We therefore first use a technique for clustering words with similar spelling together as single columns. The steps are as follows. We first extract all the unique column names (i.e. words) from the gtd and news DTMs, which constitutes our *vocabulary*. We then apply the `term_char_sim` function to calculate which terms are sufficiently similar. By default, `term_char_sim` looks at overlapping tri-grams (i.e. three consequtive characters) with some additional restrictions.
 
@@ -110,6 +106,7 @@ The first two arguments are the two DTMs that are to be compared, in our case th
 g = compare_documents(sf$query_dtm, sf$ref_dtm, copy_meta=T, 
                       date_var='date', hour_window = c(-4*7*24,7*24), 
                       min_similarity=1, measure = 'dot_product', verbose=T)
+
 ```
 
 The output `g` is a list that contains an edgelist data.table `d` in which each row is a match, with columns indicating the GTD event id, Guardian article id, weight of the match, and the hour difference. It also contains the document meta information and certain additional attributes of the document similarity comparison. This is stored separately for from and to matches, in our case GTD events (`from_meta`) and Guardian articles (`to_meta`).

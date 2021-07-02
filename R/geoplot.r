@@ -62,15 +62,16 @@ plot_worldmap <- function(region, value, scale=F, sqrt=F, only_europe=F) {
     xlim = c(-180,180)
     ylim = c(-60,90)
   }
+  d$`average #\nof articles` = d$value
   p <- ggplot2::ggplot() +
     ggplot2::geom_map(data = WorldData, map = WorldData,
              ggplot2::aes(x = long, y = lat, group = group, map_id=region),
-             fill = "white", colour = "#7f7f7f", size=0.3, show.legend = F) +
+             fill = "white", colour = "#F2F2F2", size=0.5, show.legend = F) +
     ggplot2::geom_map(data = d, map=WorldData,
-             ggplot2::aes(fill=value, map_id=region),
-             colour="grey", size=0.2, show.legend = T) +
+             ggplot2::aes(fill=`average #\nof articles`, map_id=region),
+             size=0.5, show.legend = T) +
     ggplot2::coord_map("rectangular", lat0=0, xlim=xlim, ylim=ylim) +
-    ggplot2::scale_fill_gradient2(low = 'white', mid = 'white', high = 'black') +
+    ggplot2::scale_fill_gradient2(low = '#FFFFFF', high = 'black') +
     ggplot2::scale_y_continuous(breaks=c()) +
     ggplot2::scale_x_continuous(breaks=c()) +
     ggplot2::xlab('') + ggplot2::ylab('') +

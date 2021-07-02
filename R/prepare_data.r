@@ -296,3 +296,4 @@ prepare_dtm <- function(d, doc_col='id', text_col='text', first_n_words=NA, rm_t
 
   dtm
 }
+

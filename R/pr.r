@@ -19,7 +19,7 @@
 #' @export
 #'
 #' @examples
-gtd_pr <- function(g, weight_range, steps, weights=NULL, weight_col='weight', filter=NULL, gtd_id_filter=NULL) {
+gtd_pr <- function(g, weight_range, steps, weights=NULL, weight_col='weight', filter=NULL, exclude_added=T, gtd_id_filter=NULL) {
   ## filter d on time and hourdiff beforehand for quicker computation
   hourdiff_range=c(0,7*24)
   d = g$d
@@ -50,7 +50,7 @@ gtd_pr <- function(g, weight_range, steps, weights=NULL, weight_col='weight', fi
   lines(res$weight, res$F1a, type='l', lty=3, lwd=3, col='darkgrey')
   top = which.max(res$F1a)
   graphics::abline(v=res$weight[top], lty=2)
-  graphics::text(x=res$weight[top], y=2, labels=paste(' weight =',round(res$weight[top],2)), adj=0, font=3, cex=0.9, family='mono')
+  graphics::text(x=res$weight[top], y=2, labels=paste(' weight =',round(res$weight[top],2)), adj=0, font=3, cex=0.9, family='monospace')
 
 
   plot(res$weight, res$Pm, type='l', lty=1, lwd=2,
@@ -60,7 +60,7 @@ gtd_pr <- function(g, weight_range, steps, weights=NULL, weight_col='weight', fi
   lines(res$weight, res$F1m, type='l', lty=3, lwd=3, col='darkgrey')
   top = which.max(res$F1m)
   graphics::abline(v=res$weight[top], lty=2)
-  graphics::text(x=res$weight[top], y=2, labels=paste(' weight =',round(res$weight[top],2)), adj=0, font=3, cex=0.9, family='mono')
+  graphics::text(x=res$weight[top], y=2, labels=paste(' weight =',round(res$weight[top],2)), adj=0, font=3, cex=0.9, family='monospace')
 
 
   par(mar=c(0,0,1,0), xpd=T)
@@ -88,6 +88,8 @@ gtd_pr <- function(g, weight_range, steps, weights=NULL, weight_col='weight', fi
 calculate_gtd_pr <- function(e, min_weight=NA, weight_col='weight', hourdiff_range=c(0,Inf), gtd_id_filter=NULL) {
   a = gold_matches$articles
   m = gold_matches$matches
+
+
   if (!is.null(gtd_id_filter)) {
     m = m[m$gtd_id %in% gtd_id_filter,]
     a$has_match[!a$guardian_id %in% m$guardian_id] = F

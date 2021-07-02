@@ -1,6 +1,18 @@
 Third part of online appendix: Validation and Analysis
 ================
 
+  - [Load data](#load-data)
+  - [Validation](#validation)
+      - [similarity threshold
+        estimation](#similarity-threshold-estimation)
+      - [Gold standard validation](#gold-standard-validation)
+      - [Comparison of validation
+        methods](#comparison-of-validation-methods)
+  - [Analysis](#analysis)
+      - [Country level variation](#country-level-variation)
+      - [Multilevel regression
+        analysis](#multilevel-regression-analysis)
+
 # Load data
 
 The data for this part can either be created in the second part, or the
@@ -12,8 +24,8 @@ library(gtdnews)
 library(data.table)
 
 file_url = 'https://github.com/kasperwelbers/gtdnews/raw/master/GTD_matching/sim_data.rds'
-download.file(file_url, 'sim_data.rds')
-g = readRDS('sim_data.rds')
+download.file(file_url, 'GTD_matching/sim_data.rds')
+g = readRDS('GTD_matching/sim_data.rds')
 ```
 
 The object `g` is a list with 3 data.frames (in data.table format), that
@@ -32,7 +44,7 @@ The edgelist has already been filtered to only have event-article paris
 where the similarity (weight) was at least 1. Otherwise, the data would
 have been much larger, and we don’t use this information. However, note
 that for the unsupervised validation method we do need to know the total
-number of news article to which each event has been compared, seperately
+number of news article to which each event has been compared, separately
 for articles published before the event (\(N_{before}\)) and after the
 event (\(N_{after}\)). These numbers can be obtained from the
 `from_meta` data, which has the column `from_n` (how many comparisons in
@@ -47,31 +59,34 @@ use events where the `.complete_window` column in `g$from_meta` is TRUE.
 
 # Validation
 
-## Unsupervised validation
+## similarity threshold estimation
 
-### figure 2
+### figure 1
 
-To produce figure 2, we plot histograms of the `hourdiff` column in the
+To produce figure 1, we plot barcharts of the `hourdiff` column in the
 edgelist, which gives the time difference between the event and news
 article in hours. We divide this by 24 to get the difference in days.
-Three plots side by side (`mfrow = c(1,3)`) are presented, that show
-this histogram for the similarity thresholds 2, 7 and 14. There is no
-particular reason for these threshold, other than that it nicely shows
-high recall (left), high precision (right), and a more balanced
-thresholds with presumably high F1 (mid).
+Three plots side by side (`mfrow = c(1,3)`) are presented, for the
+similarity thresholds 2, 7 and 14. There is no particular reason for
+these threshold, other than that it nicely shows high recall (left),
+high precision (right), and a more balanced thresholds with presumably
+high F1 (mid).
 
 ``` r
+g$d$daydiff = floor(g$d$hourdiff / 24)
+
 par(mar=c(4.5,4,1,4), mfrow=c(1,3))  ## plot side by side
-for (thres in c(2,7,14)) 
-  x=hist(g$d$hourdiff[g$d$weight > thres] / 24, right = F, main='', xlab='Day difference')
+for (thres in c(2,7,14)) {
+  agg = g$d[,list(n = sum(weight > thres)), by='daydiff']
+  setorderv(agg, 'daydiff')
+  barplot(agg$n, names.arg = agg$daydiff, cex.names = 0.8, 
+          xlab= ifelse(thres==7, 'Day difference', ''),
+          ylab= ifelse(thres==2, 'Number of matches', ''),
+          col = ifelse(agg$daydiff >= 0, 'black','white'))
+}
 ```
 
-For reference, the `right = FALSE` parameter means that histogram cells
-are left-closed. This is required so that all results for a day
-difference of zero or higher are in the bar on the right of the zero
-point the x-axis.
-
-### figure 3
+### figure 2
 
 This function uses the method for estimating precision (P), recall (R)
 and F1 for a range of similarity thresholds. The start and end of the
@@ -79,9 +94,10 @@ range is specified in the `weight_range` argument, and the `steps`
 argument gives the number of points into which this range is divided.
 Here we use 200 steps, meaning that we get 200 estimations. The
 recall\_precision\_thres determines which of these estimations is used
-for our approximation of \(TP_{recall\approx100}\) (see paper for
-details). Here we say that we use the lowest similarity threshold that
-has an estimated precision of at least 5%.
+for our approximation of \(TP_{recall\approx100}\) (see
+[here](threshold_estimation.pdf) for details). Here we say that we use
+the lowest similarity threshold that has an estimated precision of at
+least 5%.
 
 ``` r
 est_pr = estimate_validity(g, weight_range = c(1,20), steps=200, 
@@ -92,7 +108,7 @@ est\_pr contains the estimated precision and recall (and F1) scores. We
 will use this below to compare with the gold standard validation.
 
 Reviewer note: A more generalized version of this function will be added
-to the RNewsflow R package.
+to the MASKED R package.
 
 ## Gold standard validation
 
@@ -107,7 +123,7 @@ head(gold_matches$articles)
 head(gold_matches$matches)
 ```
 
-### figure 4
+### figure 3
 
 This function computes the P, R and F1 scores based on the gold
 standard. The `weight_range` and `steps` arguments work in the same way
@@ -117,13 +133,36 @@ as in the `estimate_validity` function.
 gold_pr = gtd_pr(g, weight_range = c(1,20), steps = 200)
 ```
 
+### precision validation
+
+For additional validation of the precision, we manually coded 100
+event-article pairs that accoring to the algorithm, and the estimated
+threshold of 6.54, are considered a match.
+
+``` r
+?precision_check
+```
+
+``` r
+mean(precision_check$correct)  ## precision for threshold 6.54
+mean(precision_check$correct[precision_check$weight > 10])  ## precision for higher threshold
+```
+
+This data also contains URLs linking to the GTD event description and
+Guardian article, and comments from the coder for more ambiguous
+references to clarify why the match is correct or incorrect.
+
+``` r
+View(precision_check)
+```
+
 ## Comparison of validation methods
 
 Here we compare the est\_pr and gold\_pr results. Note that this only
 works if the weight\_range and steps arguments for the functions that
 generated this data are identical.
 
-### figure 5
+### figure 4
 
 Plot the F1 scores
 
@@ -133,22 +172,19 @@ plot(est_pr$threshold, est_pr$F1, type='l',
      ylim = c(min(est_pr$F1, gold_pr$F1m), max(est_pr$F1, gold_pr$F1m)+10), 
      xlab='Similarity threshold', ylab='F1', lwd=2, col='grey', bty='l')
 lines(gold_pr$weight, gold_pr$F1m, lty=1, lwd=1)
-```
 
-Add the vertical bars for the highest F1 scores
-
-``` r
+## Add the vertical bars for the highest F1 scores
 top_est = round(est_pr$threshold[est_pr$F1 == max(est_pr$F1)][1], 2)
 top_gold = round(gold_pr$weight[gold_pr$F1m == max(gold_pr$F1m)][1], 2)
 
 graphics::abline(v=top_gold, lty=2)
 graphics::abline(v=top_est, lty=2, col='darkgrey')
 graphics::text(x=top_gold-0.4, y=19, labels=top_gold, 
-               srt=0, adj=1, font=3, cex=1, family='mono')
+               srt=0, adj=1, font=3, cex=1, family='monospace')
 graphics::text(x=top_est+1.85, y=19, labels=top_est, 
-               srt=0, adj=1, font=3, cex=1, family='mono')
+               srt=0, adj=1, font=3, cex=1, family='monospace')
 
-legend('topright', bty='n', legend = c('weak supervision', 'gold standard'), 
+legend('topright', bty='n', legend = c('estimation', 'gold standard'), 
        lty=c(1,1), lwd=c(2,1), col=c('grey', 'black'))
 ```
 
@@ -188,16 +224,15 @@ explore other predictors of coverage.
 
 ## Country level variation
 
-To create the worldmaps (figure 6 and 7) we need to locate the region of
-the GTD events. We use the latitude and longitude of events and find the
-closest regions.
+To create the worldmaps (figure 5, only second one is shown in article)
+we need to locate the region of the GTD events. We use the latitude and
+longitude of events and find the closest regions.
 
 ``` r
 e$region = get_region_id(e$lon, e$lat, e$country)
 ```
 
-Now we can aggregate to
-region.
+Now we can aggregate to region.
 
 ``` r
 geo = e[,list(sum_news=sum(N_news),     ## total number of news articles 
@@ -205,16 +240,15 @@ geo = e[,list(sum_news=sum(N_news),     ## total number of news articles
               by='region']
 ```
 
-### Figure 6 and 7
+### Figure 5
 
 The `plot_worldmap` function wraps the code (mainly using ggplot2) for
 visualizing the worldmap. The input is the region name and a numeric
-score for that region. THe difference between figure 6 and 7 is only
-whether the sum or mean of news articles per region is used.
+score for that region.
 
 ``` r
-plot_worldmap(geo$region, geo$sum_news)   ## figure 6
-plot_worldmap(geo$region, geo$mean_news)  ## figure 7
+plot_worldmap(geo$region, geo$sum_news)   ## most coverage in total. not reported in paper
+plot_worldmap(geo$region, geo$mean_news)  ## most coverage per event. figure 5
 ```
 
 ## Multilevel regression analysis
@@ -258,8 +292,8 @@ m3 = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + (1 | country
 m4 = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + value_dist + UN_disagree + (1 | country), 
            data=e2, family = binomial)
 
-anova(m1,m2,m3,m4)
-tab_model(m1,m2,m3,m4, show.se = T)
+#anova(m1,m2,m3)
+tab_model(m1,m2,m3,m4, show.ci = F)
 ```
 
 ### table 2: all countries
@@ -279,13 +313,13 @@ m2 = glmer(has_news ~ 1 + log(killed) + suicide + (1| country),
 m3 = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + (1 | country), 
            data=e3, family = binomial)
 
-anova(m1,m2,m3)
-tab_model(m2,m3, show.se=T)
+#anova(m1,m2,m3)
+tab_model(m1,m2,m3, show.ci = F)
 ```
 
-### figure 8
+### figure 6
 
-To create figure 8, we first loop over different weight thresholds, fit
+To create figure 6, we first loop over different weight thresholds, fit
 the full model for this threshold, and store the coefficients for each
 model.
 
@@ -296,8 +330,7 @@ for (weight_thres in seq(1, 20, by=0.5)) {
   e = gtd_event_coverage(g, weight_thres = weight_thres)
   e = subset(e, killed > 0)
   e = merge(e, UK_dist_scores, by='country')
-  full_model = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + value_dist + UN_disagree + (1 | country), 
-                     data=e, family = binomial)
+  full_model = glmer(has_news ~ 1 + log(killed) + suicide + scale(geo_dist) + value_dist + UN_disagree + (1 | country), data=e, family = binomial)
   
   x = plot_model(full_model)
   x = x$data
@@ -325,9 +358,9 @@ library(facetscales)
 d$term = as.character(d$term)
 d$term[d$term == 'log(killed)'] = 'fatal victims'
 d$term[d$term == 'suicide'] = 'suicide'
-d$term[d$term == 'scale(geo_dist)'] = 'geographical dist.'
-d$term[d$term == 'value_dist'] = 'cultural values dist.'
-d$term[d$term == 'UN_disagree'] = 'UN voting diff.'
+d$term[d$term == 'scale(geo_dist)'] = 'geo dist'
+d$term[d$term == 'value_dist'] = 'cultural val dist'
+d$term[d$term == 'UN_disagree'] = 'UN voting diff'
 
 ## make factor, so that ggplot puts the results in the right order
 cnames = unique(d$term)
@@ -337,17 +370,17 @@ d$term = factor(as.character(d$term), levels=cnames)
 scales_y <- list(
   `fatal victims` = scale_y_continuous(limits = c(0,3)),
   `suicide` = scale_y_continuous(limits = c(0, 30)),
-  `geographical dist.` = scale_y_continuous(limits = c(0,2)),
-  `cultural values dist.` = scale_y_continuous(limits = c(0,2)),
-  `UN voting diff.` = scale_y_continuous(limits = c(0,2))
+  `geo dist` = scale_y_continuous(limits = c(0,2)),
+  `cultural val dist` = scale_y_continuous(limits = c(0,2)),
+  `UN voting diff` = scale_y_continuous(limits = c(0,2))
 )
 
 ggplot(data = d, aes(threshold, estimate)) +
-  geom_line(color = "steelblue", size = 1) +
-  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), colour="black", width=.1, ) +
-  geom_point(color="steelblue") + 
+  geom_line(color = "black", size = 1) +
+  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), colour="black", width=.4, ) +
+  geom_point(color="black") + 
   theme(plot.margin = unit(c(-1,0.4,0.4,0.4), "cm")) +
-  geom_hline(yintercept=1, color='red', linetype=2) +
+  geom_hline(yintercept=1, color='black', linetype=2) +
   labs(title = "", subtitle = "",
        y = "odds ratio", x = "similarity threshold") + 
   facet_grid_sc(term~., scales = list(y = scales_y))

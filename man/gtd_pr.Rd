@@ -11,6 +11,7 @@ gtd_pr(
   weights = NULL,
   weight_col = "weight",
   filter = NULL,
+  exclude_added = T,
   gtd_id_filter = NULL
 )
 }

@@ -96,7 +96,7 @@ estimate_validity <- function(g, weight_range, steps, min_weight=NA, do_plot=T, 
 
     top = which.max(res$F1)
     graphics::abline(v=res$threshold[top], lty=2)
-    graphics::text(x=res$threshold[top], y=95, labels=paste(' weight =',round(res$threshold[top],2)), adj=0, font=3, cex=0.9, family='mono')
+    graphics::text(x=res$threshold[top], y=95, labels=paste(' weight =',round(res$threshold[top],2)), adj=0, font=3, cex=0.9, family='monospace')
     graphics::legend('right', legend = c(expression(hat("P")), expression(hat("R")), expression(hat("F1"))), bty='n', lty=c(1,2,1), col=c('black','black','darkgrey'), lwd=2)
 
     g$d$daydiff = floor(g$d$hourdiff / 24)

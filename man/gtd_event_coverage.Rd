@@ -7,7 +7,7 @@
 gtd_event_coverage(g, weight_thres)
 }
 \arguments{
-\item{g}{The graph data, as returned by the \code{\link[RNewsflow]{compare_documents}}}
+\item{g}{The graph data, as returned by the compare_documents function.}
 
 \item{weight_thres}{The threshold for the similarity score}
 }

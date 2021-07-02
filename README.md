@@ -1,23 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Note for reviewers
-
-This is the reviewer version for the online appendix.
-
-As described below, the appendix consists of three parts. The third part
-is most relevant for the review, because it contains the main
-innovations of this study. Also, this part does not require copyright
-sensitive information, so the data for this part is included in the
-GitHub repository. If you install the helper package as instructed
-below, and follow the instructions in the third part of the online
-appendix, the results presented in the validation and analysis sections
-can be replicated.
-
 # About this repository
 
-This repository serves as an online appendix for \[@paper\]. It contains
-the code and data to replicate the analysis.
+This repository serves as an online appendix for \[DOI forthcoming\]. It
+contains the code and data to replicate the analysis.
 
 The appendix is composed of three parts.
 
@@ -41,11 +28,11 @@ using your own DTMs.
 # Appendix helper package
 
 This online appendix contains quite a lot of code, and requires several
-packages We have created a helper package that contains the code in
-documented functions, and has the required packages as dependencies. The
-easiest way to install this package (without cloning the repository) is
-to use the `remotes` package, that allows you to directly install it
-from github.
+packages We have therefore created a helper package that contains the
+code in documented functions, and has the required packages as
+dependencies. The easiest way to install this package (without cloning
+the repository) is to use the `remotes` package, that allows you to
+directly install it from github.
 
 ``` r
 library(remotes)

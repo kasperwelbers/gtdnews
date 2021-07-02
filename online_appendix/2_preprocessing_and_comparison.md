@@ -1,16 +1,17 @@
 Second part of online appendix: Preprocessing and Comparison
 ================
 
-# Note to reviewers
-
-This analysis relies on the `RNewflow` package that we previously
-developed, and updated for this study. Although `RNewsflow` is hosten on
-CRAN, the current study requires the development version that is
-available on GitHub.
+  - [Matching the GTD events to the news
+    articles](#matching-the-gtd-events-to-the-news-articles)
+  - [Additional preprocessing for better
+    matching](#additional-preprocessing-for-better-matching)
+      - [Cluster terms with similar
+        spelling](#cluster-terms-with-similar-spelling)
+      - [Compute term combinations](#compute-term-combinations)
+  - [Performing the comparison](#performing-the-comparison)
 
 ``` r
-library(remotes)
-remotes::install_github('kasperwelbers/RNewsflow')
+install.packages('RNewsflow')
 ```
 
 # Matching the GTD events to the news articles
@@ -59,8 +60,8 @@ and with DTMs as input.
 
 In a DTM, terms that have very similar spelling are nonetheless regarded
 as completely separate columns. To some extent, this is accounted for by
-preprocessing tech“niques such as stemming (applied in our case) or
-lemmatization. For instance, with stemming,”attacking“,”attack" and
+preprocessing techniques such as stemming (applied in our case) or
+lemmatization. For instance, with stemming, “attacking”, “attack” and
 “attacks” are all transformed to “attack”. However, some words–in
 particular namems–can have different spellings, such as “Gaddafi” or
 “Gadhafi”. Moreover, some datasets have spelling mistakes. In the GTD
